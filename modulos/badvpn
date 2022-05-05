@@ -1,0 +1,135 @@
+#!/bin/bash
+
+scor='\033[0m'
+cor1='\033[1;37m'
+cor2='\033[1;31m'
+cor3='\033[1;32m'
+cor4='\033[1;36m'
+cor5='${cor5}'
+cor6='\033[1;35m'
+cortxt='\033[1;33m'
+corbar1='\033[41;1;37m'
+corbar2='\033[44;1;37m'
+
+clear
+fun_badvpn() {
+    echo -e "${corbar2}            GERENCIADOR UDP FAST             ${scor}"
+    echo ""
+    if ps x | grep -w udpvpn | grep -v grep 1>/dev/null 2>/dev/null; then
+        echo -e "${cortxt}PORTAS ATIVA${cor1}: ${cor3}$(netstat -nplt | grep 'badvpn-ud' | awk {'print $4'} | cut -d: -f2 | xargs)"
+    else
+        sleep 0.1
+    fi
+    echo ""
+    echo ""
+    echo -e "${cor2}• ${cortxt}VOCE PODE UTILIZAR OUTRAS PORTAS UDP!${scor}"
+    echo -e "${cor2}• ${cortxt}POR EXEMPLO: 7295,7296,7297,7298,7299${scor}"
+    echo ""
+    var_sks1=$(ps x | grep "udpvpn"|grep -v grep > /dev/null && echo -e "${cor3}ON ◉ " || echo -e "${cor2}OFF ○")
+echo -e "${cor1}══════════════════════════════════════${scor}"
+    echo -e "${cor2}[${cor4}1${cor2}] ${cor1}• ${cortxt}ATIVAR UDP FAST: $var_sks1 ${scor}"
+    echo -e "${cor2}[${cor4}2${cor2}] ${cor1}• ${cortxt}ABRIR PORTA${scor}"
+    echo -e "${cor2}[${cor4}0${cor2}] ${cor1}• ${cortxt}VOLTAR${scor}"
+echo -e "${cor1}══════════════════════════════════════${scor}"
+    echo ""
+    echo -ne "${cor3}O QUE DESEJA FAZER ${cortxt}?${cor1} "
+    read resposta
+    if [[ "$resposta" = '1' ]]; then
+        if ps x | grep -w udpvpn | grep -v grep 1>/dev/null 2>/dev/null; then
+            clear
+            echo -e "${corbar2}             UDP FAST              ${scor}"
+            echo ""
+            fun_stopbad () {
+                sleep 1
+                for pidudpvpn in $(screen -ls | grep ".udpvpn" | awk {'print $1'}); do
+                    screen -r -S "$pidudpvpn" -X quit
+				done
+                [[ $(grep -wc "udpvpn" /etc/autostart) != '0' ]] && {
+                    sed -i '/udpvpn/d' /etc/autostart
+                }
+                sleep 1
+                screen -wipe >/dev/null
+            }
+            echo -e "${cortxt}PARANDO O UDP FAST${cortxt}"
+            echo ""
+            fun_stopbad
+            echo -e "${cor3}UDP FAST DESLIGADO COM SUCESSO!${cortxt}"
+			clear
+            sleep 2s
+            badvpn
+        else
+            clear
+            echo -e "${cor3}INICIANDO O UDP FAST... ${scor}\n"
+                 fun_udpon () {
+        screen -dmS udpvpn /bin/badvpn-udpgw --listen-addr 127.0.0.1:7300 --max-clients 1000 --max-connections-for-client 10
+        [[ $(grep -wc "udpvpn" /etc/autostart) = '0' ]] && {
+		    echo -e "ps x | grep 'udpvpn' | grep -v 'grep' || screen -dmS udpvpn /bin/badvpn-udpgw --listen-addr 127.0.0.1:7300 --max-clients 1000 --max-connections-for-client 10 --client-socket-sndbuf 1000" >> /etc/autostart
+		} || {
+		    sed -i '/udpvpn/d' /etc/autostart
+		    echo -e "ps x | grep 'udpvpn' | grep -v 'grep' || screen -dmS udpvpn /bin/badvpn-udpgw --listen-addr 127.0.0.1:7300 --max-clients 1000 --max-connections-for-client 10 --client-socket-sndbuf 1000" >> /etc/autostart
+		}
+                sleep 1
+            }
+            inst_udp () {
+                [[ -e "/bin/badvpn-udpgw" ]] && {
+                    sleep 0.1
+                } || {
+                    cd $HOME
+                    wget https://www.dropbox.com/s/ti0ynrw82kjpgp8/badvpn-udpgw > /dev/null 2>&1
+                    mv -f $HOME/badvpn-udpgw /bin/badvpn-udpgw
+                    chmod +x /bin/badvpn-udpgw
+                }
+            }
+            inst_udp
+            fun_udpon
+            echo -e "${cor3}UDP FAST ATIVADO COM SUCESSO!${cortxt}"
+            sleep 2s
+            clear
+            fun_badvpn
+        fi
+    elif [[ "$resposta" = '2' ]]; then
+        if ps x | grep -w udpvpn | grep -v grep 1>/dev/null 2>/dev/null; then
+            clear
+            echo -e "${corbar2}            UDP FAST             ${scor}"
+            echo ""
+            echo -ne "${cortxt}QUAL PORTA DESEJA ULTILIZAR ${cortxt}?${cor1}: "
+            read porta
+            [[ -z "$porta" ]] && {
+                echo ""
+                echo -e "${cor2}Porta invalida!"
+                sleep 2
+                clear
+                badvpn
+            }
+            echo ""
+            echo -e "${cortxt}INICIANDO O UDP FAST NA PORTA ${cor4}$porta${cortxt}"
+            fun_abrirptbad() {
+                sleep 1
+                screen -dmS udpvpn /bin/badvpn-udpgw --listen-addr 127.0.0.1:$porta --max-clients 1000 --max-connections-for-client 10
+                sleep 1
+            }
+            fun_abrirptbad
+            echo ""
+            echo -e "${cor3}UDP FAST ATIVADO COM SUCESSO${cortxt}"
+            sleep 2s
+            clear
+            badvpn
+        else
+            clear
+            echo -e "${cor2}FUNCAO INDISPONIVEL\n\n${cortxt}ATIVE O UDP FAST PRIMEIRO !${cortxt}"
+            sleep 2
+			clear
+            badvpn
+        fi
+    elif [[ "$resposta" = '0' ]]; then
+        echo ""
+        menu
+    else
+        echo ""
+        echo -e "${cor2}Opcao invalida !${scor}"
+        sleep 1
+		clear
+        badvpn
+    fi
+}
+fun_badvpn

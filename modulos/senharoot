@@ -1,0 +1,27 @@
+#!/bin/bash
+
+scor='\033[0m'
+cor1='\033[1;37m'
+cor2='\033[1;31m'
+cor3='\033[1;32m'
+cor4='\033[1;36m'
+cor5='\033[1;34m'
+cor6='\033[1;35m'
+cortxt='\033[1;33m'
+corbar1='\033[41;1;37m'
+corbar2='\033[44;1;37m'
+
+echo -e "${cor2}ATENCAO!!${scor}"
+echo " "
+echo -e "${cortxt}Essa senha sera usada para entrar no seu servidor
+${scor}"
+echo -e "${cor3}DIGITE A NOVA SENHA ${cor3}
+para continuar...${cor2}${scor}"
+read  -p : pass
+(echo $pass; echo $pass)|passwd 2>/dev/null
+sleep 1s
+echo -e "${cor2}SENHA ALTERADA COM SUCESSO!${scor}"
+sleep 5s
+cd
+clear
+

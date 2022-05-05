@@ -1,0 +1,87 @@
+#!/bin/bash
+
+scor='\033[0m'
+cor1='\033[1;37m'
+cor2='\033[1;31m'
+cor3='\033[1;32m'
+cor4='\033[1;36m'
+cor5='\033[1;34m'
+cor6='\033[1;35m'
+cortxt='\033[1;33m'
+corbar1='\033[41;1;37m'
+corbar2='\033[44;1;37m'
+
+clear
+echo -e "${corbar2}               INFORMACOES DO VPS                 ${scor}"
+echo ""
+if [ -f /etc/lsb-release ]
+then
+echo -e "${cor2}• ${cor3}SISTEMA OPERACIONAL${cor2} •${scor}"
+echo ""
+name=$(cat /etc/lsb-release |grep DESCRIPTION |awk -F = {'print $2'})
+codename=$(cat /etc/lsb-release |grep CODENAME |awk -F = {'print $2'})
+echo -e "${cortxt}Nome: ${cor1}$name"
+echo -e "${cortxt}CodeName: ${cor1}$codename"
+echo -e "${cortxt}Kernel: ${cor1}$(uname -s)"
+echo -e "${cortxt}Kernel Release: ${cor1}$(uname -r)"
+if [ -f /etc/os-release ]
+then
+devlike=$(cat /etc/os-release |grep LIKE |awk -F = {'print $2'})
+echo -e "${cortxt}Derivado do OS: ${cor1}$devlike"
+echo ""
+fi
+else
+system=$(cat /etc/issue.net)
+echo -e "${cor2}• ${cor3}SISTEMA OPERACIONAL${cor2} •${scor}"
+echo ""
+echo -e "${cortxt}Nome: ${cor1}$system"
+echo ""
+fi
+
+if [ -f /proc/cpuinfo ]
+then
+uso=$(top -bn1 | awk '/Cpu/ { cpu = "" 100 - $8 "%" }; END { print cpu }')
+echo -e "${cor2}• ${cor3}PROCESSADOR${cor2} •${scor}"
+echo ""
+modelo=$(cat /proc/cpuinfo |grep "model name" |uniq |awk -F : {'print $2'})
+cpucores=$(grep -c cpu[0-9] /proc/stat)
+cache=$(cat /proc/cpuinfo |grep "cache size" |uniq |awk -F : {'print $2'})
+echo -e "${cortxt}Modelo:${cor1}$modelo"
+echo -e "${cortxt}Nucleos:${cor1} $cpucores"
+echo -e "${cortxt}Memoria Cache:${cor1}$cache"
+echo -e "${cortxt}Arquitetura: ${cor1}$(uname -p)"
+echo -e "${cortxt}ultilizacao: \033[37m$uso"
+echo ""
+else
+echo -e "${cor3}PROCESSADOR${scor}"
+echo ""
+echo "Não foi possivel obter informações"
+fi
+
+if free 1>/dev/null 2>/dev/null
+then
+ram1=$(free -h | grep -i mem | awk {'print $2'})
+ram2=$(free -h | grep -i mem | awk {'print $4'})
+ram3=$(free -h | grep -i mem | awk {'print $3'})
+usoram=$(free -m | awk 'NR==2{printf "%.2f%%\t\t", $3*100/$2 }')
+
+echo -e "${cor2}• ${cor3}MEMORIA RAM${cor2} •${scor}"
+echo ""
+echo -e "${cortxt}Total: ${cor1}$ram1"
+echo -e "${cortxt}Em Uso: ${cor1}$ram3"
+echo -e "${cortxt}Livre: ${cor1}$ram2"
+echo -e "${cortxt}ultilizacao: \033[37m$usoram"
+echo ""
+else
+echo -e "${cor3}MEMORIA RAM${scor}"
+echo ""
+echo "Não foi possivel obter informações"
+fi
+[[ ! -e /bin/versao ]] && rm -rf /etc/SSHPlus
+echo -e "${cor2}• ${cor3}SERVICOS EM EXECUCAO${cor2} •${scor}"
+echo ""
+PT=$(lsof -V -i tcp -P -n | grep -v "ESTABLISHED" |grep -v "COMMAND" | grep "LISTEN")
+for porta in `echo -e "$PT" | cut -d: -f2 | cut -d' ' -f1 | uniq`; do
+    svcs=$(echo -e "$PT" | grep -w "$porta" | awk '{print $1}' | uniq)
+    echo -e "${cortxt}Servico ${cor1}$svcs ${cortxt}Porta ${cor1}$porta"
+done

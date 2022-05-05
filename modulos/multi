@@ -1,0 +1,70 @@
+#!/bin/bash
+
+scor='\033[0m'
+cor1='\033[1;37m'
+cor2='\033[1;31m'
+cor3='\033[1;32m'
+cor4='\033[1;36m'
+cor5='\033[1;34m'
+cor6='\033[1;35m'
+cortxt='\033[1;33m'
+corbar1='\033[41;1;37m'
+corbar2='\033[44;1;37m'
+
+##SCRIPTS A INSTALAR
+
+SINCRONIZARPAINEL () {
+      bash <(wget -qO- sshplus.xyz/scripts/utilitarios/syncpainel/inst)
+}
+
+while true $x != "ok"
+do
+clear
+echo -e "${cor5}════════════════════════════════════════════════${scor}"
+echo -e "${corbar2}              ○ FERRAMENTAS EXTRA ○             ${scor}"
+echo -e "${cor5}════════════════════════════════════════════════${scor}"
+echo -e "${cor2}  [${cor4} 01 ${cor2}] ${cor1}◉ ${cortxt}SINCRONIZAR PAINEL WEB 
+${cor2}  [${cor4} 02 ${cor2}] ${cor1}◉ ${cortxt}BADVPN
+${cor2}  [${cor4} 03 ${cor2}] ${cor1}◉ ${cortxt}HTOP
+${cor2}  [${cor4} 04 ${cor2}] ${cor1}◉ ${cortxt}LIBERAR FIREWALL ORACLE
+${cor2}  [${cor4} 00 ${cor2}] ${cor1}◉ ${cor1}SAIR"
+echo -e "${cor5}════════════════════════════════════════════════${scor}"
+echo ""
+echo -ne "${cor3} O QUE DESEJA FAZER ${cortxt}?${cor2}?${cor1} : "; read x
+
+case "$x" in 
+   1 | 01)
+   clear
+   SINCRONIZARPAINEL
+   read -sp " Pressione ENTER para voltar"
+   multi
+   ;;
+     2 | 02)
+   clear
+   badvpn.sh
+   read -sp " Pressione ENTER para voltar"
+   multi
+        ;;
+     3 | 03)
+   clear
+   htop.sh
+   ;;
+   4 | 04)
+   clear
+   firewall.sh
+   echo -e "${cor2}Feito! Retornado ao menu...${scor}"
+   echo ""
+   ;;
+   0 | 00)
+   echo -e "${cor2}Saindo...${scor}"
+   sleep 2
+   clear
+   menu;
+   ;;
+   *)
+   echo -e "\n${cor2}Opcao invalida !${scor}"
+   sleep 2
+esac
+done
+}
+#fim

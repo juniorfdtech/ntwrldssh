@@ -1,0 +1,158 @@
+#!/bin/bash
+
+scor='\033[0m'
+cor1='\033[1;37m'
+cor2='\033[1;31m'
+cor3='\033[1;32m'
+cor4='\033[1;36m'
+cor5='\033[1;34m'
+cor6='\033[1;35m'
+cortxt='\033[1;33m'
+corbar1='\033[41;1;37m'
+corbar2='\033[44;1;37m'
+
+clear
+backbot=$1
+[[ -z $backbot ]] && {
+	IP=$(wget -qO- ipv4.icanhazip.com)
+	apchon () {
+		if netstat -nltp|grep 'dropbear' > /dev/null; then
+			[[ ! -d /var/www/html ]] && mkdir /var/www/html
+			[[ ! -d /var/www/html/backup ]] && mkdir /var/www/html/backup
+			touch /var/www/html/backup/index.html
+			/etc/init.d/apache2 restart
+		else
+			apt-get install apache2 zip -y
+			sed -i "s/Listen 80/Listen 81/g" /etc/apache2/ports.conf
+			service apache2 restart
+			[[ ! -d /var/www/html ]] && mkdir /var/www/html
+			[[ ! -d /var/www/html/backup ]] && mkdir /var/www/html/backup
+			touch /var/www/html/backup/index.html
+			chmod -R 755 /var/www
+			/etc/init.d/apache2 restart
+		fi
+	}
+	fun_temp () {
+		helice () {
+			apchon > /dev/null 2>&1 & 
+			tput civis
+			while [ -d /proc/$! ]
+			do
+				for i in / - \\ \|
+				do
+					sleep .1
+					echo -ne "\e[1D$i"
+				done
+			done
+			tput cnorm
+		}
+		echo -ne "${cortxt}AGUARDE${cor2}.${cor3}.${cortxt}. ${cor3}"
+		helice
+		echo -e "\e[1DOk"
+	}
+	geralink () {
+		if [ -d /var/www/html/backup ]; then
+			rm -rf /var/www/html/backup/backup.vps > /dev/null 2>&1
+			cp $HOME/backup.vps /var/www/html/backup/backup.vps
+			sleep 2
+		fi
+	}
+	fun_temp2 () {
+		helice () {
+			geralink > /dev/null 2>&1 & 
+			tput civis
+			while [ -d /proc/$! ]
+			do
+				for i in / - \\ \|
+				do
+					sleep .1
+					echo -ne "\e[1D$i"
+				done
+			done
+			tput cnorm
+		}
+		echo -ne "${cortxt}GERANDO LINK${cor2}.${cor3}.${cortxt}. ${cor3}"
+		helice
+		echo -e "\e[1DOk"
+	}
+	echo -e "${corbar2}             Gerenciador De Backups              ${scor}"
+	echo ""
+	echo -e "${cor2}[${cor4}1${cor2}] ${cor1}• ${cortxt}CRIAR BACKUP"
+	echo -e "${cor2}[${cor4}2${cor2}] ${cor1}• ${cortxt}RESTAURAR BACKUP"
+	echo -e "${cor2}[${cor4}3${cor2}] ${cor1}• ${cortxt}VOLTAR${cor1}"
+	echo ""
+	echo -ne "${cor3}OQUE DESEJA FAZER${cor2} ?${cor1} : "; read opcao
+	if [[ "$opcao" = '1' ]]; then
+		if [ -f "/root/usuarios.db" ]
+		then
+			rm -rf $HOME/backup.vps > /dev/null 2>&1
+			sleep 1
+			tar cvf /root/backup.vps /root/usuarios.db /etc/shadow /etc/passwd /etc/group /etc/gshadow /etc/SSHPlus/senha > /dev/null 2>&1
+			echo ""
+			echo -e "${cor3}BACKUP CRIADO COM SUCESSO !${scor}"
+			echo ""
+			echo -ne "${cor3}GERAR LINK PARA DOWNLOAD ${cor2}? ${cortxt}[s/n]:${cor1} "; read resp
+			if [[ "$resp" = "s" ]]; then
+				echo ""
+				fun_temp
+				echo ""
+				fun_temp2
+				echo ""
+				if [ -e /var/www/html/backup/backup.vps ]; then
+					if [[ "$VERSION_ID" = 'VERSION_ID="14.04"' ]]; then
+						echo -e "${cor3}LINK${cor1}: ${cor4}$IP:81/html/backup/backup.vps${scor}"
+					else
+						echo -e "${cor3}LINK${cor1}: ${cor4}$IP:81/backup/backup.vps${scor}"
+					fi
+				else
+					echo -e "${cor3}Disponivel em${cor2}" ~/"backup.vps${scor}"
+				fi
+			else
+				echo -e "\n${cor3}Disponivel em${cor2}" ~/"backup.vps${scor}"
+				sleep 2
+				menu
+			fi
+		else
+			echo ""
+			echo -e "${cor3}Criando backup...${scor}"
+			echo ""
+			tar cvf /root/backup.vps /etc/shadow /etc/passwd /etc/group /etc/gshadow /etc/SSHPlus/senha > /dev/null 2>&1
+			sleep 2s
+			echo ""
+			echo -e "${cortxt}O Arquivo ${cor3}backup.vps"
+			echo -e "${cortxt}foi criado com sucesso no diretório ${cor2}/root${scor}"
+			echo ""
+		fi
+	fi
+	if [[ "$opcao" = '2' ]]; then
+		if [ -f "/root/backup.vps" ]
+		then
+			echo ""
+			echo -e "${cor4}Restaurando backup..."
+			echo ""
+			sleep 2s
+			cp /root/backup.vps /backup.vps
+			cd /
+			tar -xvf backup.vps
+			rm /backup.vps
+			echo ""
+			echo -e "${cor4}Usuários e${cor4} senhas importados com sucesso.${scor}"
+			echo ""
+			exit
+		else
+			echo ""
+			echo -e "${cortxt}O arquivo ${cor3}backup.vps ${cortxt}não foi encontrado!${scor}"
+			echo -e "${cortxt}Ceritifique-se que ele esteja localizado no diretório /root/ com o nome ${cor3}backup.vps${scor}"
+			echo ""
+			exit
+		fi
+	fi
+	if [[ "$opcao" = '3' ]]; then
+		menu
+	fi
+} || {
+	rm /root/backup.vps 1>/dev/null 2>/dev/null
+	tar cvf /root/backup.vps /root/usuarios.db /etc/shadow /etc/passwd /etc/group /etc/gshadow /etc/bot /etc/SSHPlus/senha > /dev/null 2>&1
+	[[ -d "/etc/SSHPlus/backups" ]] && mv /root/backup.vps /etc/SSHPlus/backups/backup.vps
+	exit
+}

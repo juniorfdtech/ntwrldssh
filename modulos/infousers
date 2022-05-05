@@ -1,0 +1,59 @@
+#!/bin/bash
+
+scor='\033[0m'
+cor1='\033[1;37m'
+cor2='\033[1;31m'
+cor3='\033[1;32m'
+cor4='\033[1;36m'
+cor5='\033[1;34m'
+cor6='\033[1;35m'
+cortxt='\033[1;33m'
+corbar1='\033[41;1;37m'
+corbar2='\033[44;1;37m'
+
+clear
+echo -e "${corbar2} Usuario         Senha       limite      validade ${scor}"
+echo ""
+[[ ! -e /bin/versao ]] && rm -rf /bin/menu
+for users in `awk -F : '$3 > 900 { print $1 }' /etc/passwd |sort |grep -v "nobody" |grep -vi polkitd |grep -vi system-`
+do
+if [[ $(grep -cw $users $HOME/usuarios.db) == "1" ]]; then
+    lim=$(grep -w $users $HOME/usuarios.db | cut -d' ' -f2)
+else
+    lim="1"
+fi
+if [[ -e "/etc/SSHPlus/senha/$users" ]]; then
+    senha=$(cat /etc/SSHPlus/senha/$users)
+else
+    senha="Null"
+fi
+datauser=$(chage -l $users |grep -i co |awk -F : '{print $2}')
+if [ $datauser = never ] 2> /dev/null
+then
+data="${cortxt}Nunca${scor}"
+else
+    databr="$(date -d "$datauser" +"%Y%m%d")"
+    hoje="$(date -d today +"%Y%m%d")"
+    if [ $hoje -ge $databr ]
+    then
+    data="${cor2}Venceu${scor}"
+    else
+    dat="$(date -d"$datauser" '+%Y-%m-%d')"
+    data=$(echo -e "$((($(date -ud $dat +%s)-$(date -ud $(date +%Y-%m-%d) +%s))/86400)) ${cor1}Dias${scor}")
+    fi
+fi
+Usuario=$(printf ' %-15s' "$users")
+Senha=$(printf '%-13s' "$senha")
+Limite=$(printf '%-10s' "$lim")
+Data=$(printf '%-1s' "$data")
+echo -e "${cortxt}$Usuario ${cor1}$Senha ${cor1}$Limite ${cor3}$Data${scor}"
+echo -e "\033[0;34m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${scor}"
+done
+echo ""
+_tuser=$(awk -F: '$3>=1000 {print $1}' /etc/passwd | grep -v nobody | wc -l)
+_ons=$(ps -x | grep sshd | grep -v root | grep priv | wc -l)
+[[ "$(cat /etc/SSHPlus/Exp)" != "" ]] && _expuser=$(cat /etc/SSHPlus/Exp) || _expuser="0"
+[[ -e /etc/openvpn/openvpn-status.log ]] && _onop=$(grep -c "10.8.0" /etc/openvpn/openvpn-status.log) || _onop="0"
+[[ -e /etc/default/dropbear ]] && _drp=$(ps aux | grep dropbear | grep -v grep | wc -l) _ondrp=$(($_drp - 1)) || _ondrp="0"
+_onli=$(($_ons + $_onop + $_ondrp))
+echo -e "${cortxt}• ${cor4}TOTAL USUARIOS${cor1} $_tuser ${cortxt}• ${cor3}ONLINES${cor1}: $_onli ${cortxt}• ${cor2}VENCIDOS${cor1}: $_expuser ${cortxt}•${scor}"

@@ -1,0 +1,48 @@
+#!/bin/bash
+
+scor='\033[0m'
+cor1='\033[1;37m'
+cor2='\033[1;31m'
+cor3='\033[1;32m'
+cor4='\033[1;36m'
+cor5='\033[1;34m'
+cor6='\033[1;35m'
+cortxt='\033[1;33m'
+corbar1='\033[41;1;37m'
+corbar2='\033[44;1;37m'
+
+clear
+echo -e "${scor}                                                   "
+echo -e "${cor5}════════════════════════════════════════════════${scor}"
+echo -e "${corbar2}                 AUTO REBOOT               ${scor}"
+echo -e "${cor5}════════════════════════════════════════════════${scor}"
+echo -e "${scor}                                                   "
+echo -e "${cor2}[${cor4}1${cor2}] ${cor5}◉ ${cortxt}REINICIAR AGORA ${cor2}" 
+echo -e "${cor2}[${cor4}2${cor2}] ${cor5}◉ ${cortxt}DEFINIR HORA DE REINICIAR ${cor2}" 
+echo -e "${cor2}[${cor4}x${cor2}] ${cor5}◉ ${cortxt}SAIR ${cor2}"
+echo -e "${scor}                                                   "
+read -p "SELECIONE A OPCAO DESEJADA [1-2 ou x] :  " Reboot
+echo -e "${scor}                                                   "
+echo -e "${cor5}════════════════════════════════════════════════${scor}"
+clear
+case $Reboot in
+		1)
+		clear
+		reboot
+		exit
+		;;
+		2)
+		clear
+		reboot_sys_auto
+		exit
+		;;
+		x)
+        echo -e "${cor2}Menu Principal...${scor}"
+        sleep 1s
+        menu
+		;;
+		*)
+        reboot_sys
+		;;
+	    esac
+		

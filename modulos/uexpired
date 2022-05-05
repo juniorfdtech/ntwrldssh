@@ -1,0 +1,25 @@
+#!/bin/bash
+
+scor='\033[0m'
+cor1='\033[1;37m'
+cor2='\033[1;31m'
+cor3='\033[1;32m'
+cor4='\033[1;36m'
+cor5='\033[1;34m'
+cor6='\033[1;35m'
+cortxt='\033[1;33m'
+corbar1='\033[41;1;37m'
+corbar2='\033[44;1;37m'
+
+fun_exp () {
+(
+for _user in $(awk -F: '$3>=1000 {print $1}' /etc/passwd | grep -v nobody); do
+   if [[ $(chage -l $_user |grep "Account expires" |awk -F ': ' '{print $2}') != never ]]; then
+       [[ $(date +%s) -gt $(date '+%s' -d"$(chage -l $_user |grep "Account expires" |awk -F ': ' '{print $2}')") ]] && userexp=$(expr $userexp + 1)
+   fi
+   [[ userexp == [0-9] ]] && userexp=0$userexp
+done
+echo "$userexp" > /etc/SSHPlus/Exp
+) &
+}
+fun_exp > /dev/null 2>&1

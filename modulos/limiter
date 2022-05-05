@@ -1,0 +1,45 @@
+#!/bin/bash
+
+scor='\033[0m'
+cor1='\033[1;37m'
+cor2='\033[1;31m'
+cor3='\033[1;32m'
+cor4='\033[1;36m'
+cor5='\033[1;34m'
+cor6='\033[1;35m'
+cortxt='\033[1;33m'
+corbar1='\033[41;1;37m'
+corbar2='\033[44;1;37m'
+
+clear
+database="/root/usuarios.db"
+fun_multilogin() {
+	(
+		while read user; do
+			[[ $(grep -wc "$user" $database) != '0' ]] && limit="$(grep -w $user $database | cut -d' ' -f2)" || limit='1'
+			conssh="$(ps -u $user | grep sshd | wc -l)"
+			[[ "$conssh" -gt "$limit" ]] && {
+				pkill -u $user
+			}
+			[[ -e /etc/openvpn/openvpn-status.log ]] && {
+				ovp="$(grep -E ,"$user", /etc/openvpn/openvpn-status.log | wc -l)"
+				[[ "$ovp" -gt "$limit" ]] && {
+					pidokill=$(($limit - $ovp))
+					listpid=$(grep -E ,"$user", /etc/openvpn/openvpn-status.log | cut -d "," -f3 | head -n $pidokill)
+					while read ovpids; do
+						(
+							telnet localhost 7505 <<-EOF
+								kill $ovpids
+							EOF
+						) &>/dev/null &
+					done <<<"$listpid"
+				}
+			}
+		done <<<"$(awk -F: '$3 >= 1000 {print $1}' /etc/passwd)"
+	) &
+}
+while true; do
+    echo 'verificando...'
+	fun_multilogin > /dev/null 2>&1
+	sleep 15s
+done
