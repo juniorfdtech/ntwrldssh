@@ -41,7 +41,7 @@ case "$x" in
    ;;
      2 | 02)
    clear
-   badvpn.sh
+   badvpn
    read -sp " Pressione ENTER para voltar"
    multi
         ;;
