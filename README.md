@@ -1,6 +1,6 @@
 # Atualizar Pacotes do Sistema
 ```
-apt update -y; apt upgrade -y
+apt update -y; apt upgrade -y; apt autoremove -y
 ```
 
 # instalador Scriptssh 
