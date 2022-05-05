@@ -1,0 +1,17 @@
+#!/bin/sh -e
+iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -j SNAT --to 10.4.0.4
+# rc.local
+# By default this script does nothing.
+echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
+screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300 --max-clients 1000 --max-connections-for-client 10
+screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7200 --max-clients 1000 --max-connections-for-client 10
+screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7100 --max-clients 1000 --max-connections-for-client 10
+echo 1 > /proc/sys/net/ipv4/ip_forward
+echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
+iptables -A INPUT -p tcp --dport 25 -j DROP
+iptables -A INPUT -p tcp --dport 110 -j DROP
+iptables -A OUTPUT -p tcp --dport 25 -j DROP
+iptables -A OUTPUT -p tcp --dport 110 -j DROP
+iptables -A FORWARD -p tcp --dport 25 -j DROP
+iptables -A FORWARD -p tcp --dport 110 -j DROP
+exit 0
