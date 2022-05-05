@@ -2040,7 +2040,6 @@ exit 0' >$RCLOCAL
 	x="ok"
 	fun_conexao() {
 		while true $x != "ok"; do
-			[[ ! -e '/home/sshplus' ]] && exit 0
 			clear
 			    
 				echo -e "${corbar2}            🌐    MODO DE CONEXAO    🌐          ${scor}\n"
