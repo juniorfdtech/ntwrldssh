@@ -77,7 +77,6 @@ echo -e "${cor3}MEMORIA RAM${scor}"
 echo ""
 echo "Não foi possivel obter informações"
 fi
-[[ ! -e /bin/versao ]] && rm -rf /etc/SSHPlus
 echo -e "${cor2}• ${cor3}SERVICOS EM EXECUCAO${cor2} •${scor}"
 echo ""
 PT=$(lsof -V -i tcp -P -n | grep -v "ESTABLISHED" |grep -v "COMMAND" | grep "LISTEN")
